@@ -205,13 +205,12 @@ Hiển thị trạng thái slot ngay từ đầu.
 - **Tự động hóa quy trình quản lý bãi đỗ xe** bằng công nghệ nhận diện biển số xe.
 - **Nâng cao hiệu suất và giảm thiểu lỗi thủ công** trong quản lý xe ra vào.
 - **Dễ dàng tích hợp với hệ thống IoT** để giám sát từ xa.
-
-🚀 **Hãy triển khai ngay và trải nghiệm sự tiện lợi!** 🚀
-
 ---
-## Video thực hành & Poster giới thiệu dự án 
-https://drive.google.com/drive/folders/1KynVnsVusCZ_W9bLOPrZMdl0oWL5VL-E?usp=sharing
-
+## Video thực hành 
+https://drive.google.com/file/d/14Q-VhjpNjrfpyCArisUyTweeGcRDRu_1/view?usp=sharing
+---
+## Poster dự án
+https://drive.google.com/file/d/1P5lU7P8-RpwqRjRRhmVsK77MVMZaAN1q/view?usp=sharing
 ---
 ## 📝 Bản quyền
 
