@@ -115,7 +115,7 @@ Hệ thống sử dụng logic giao tiếp I2C và điều khiển Servo như sa
 >
 >   * Dự án sử dụng nhiều linh kiện tiêu thụ dòng lớn (ESP32 Wifi, Servo, Camera).
 >   * **KHÔNG** cắm tất cả vào nguồn USB Laptop, sẽ gây sụt áp dẫn đến treo ESP32 hoặc Servo không quay.
->   * **BẮT BUỘC:** Cấp nguồn ngoài tối thiểu **5V - 4A** vào các đường ray nguồn (Power Rails) của Breadboard.
+>   * **BẮT BUỘC:** Cấp nguồn ngoài tối thiểu **5V - 4A** vào các đường ray nguồn (Power Rails) của Breadboard và cắm cùng lúc thêm cả dây nguồn ESP32 vào laptop để tránh cho ESP32 bị sụt áp và reset liên tục.
 >   * Nhớ nối chung chân **GND** của nguồn ngoài, ESP32 và Arduino lại với nhau.
 
 > [!TIP]
