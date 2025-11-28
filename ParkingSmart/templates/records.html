@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Lịch sử xe ra/vào</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>📋 Lịch sử xe ra/vào</h1>
+    <a href="/" class="btn">🏠 Trang chủ</a>
+    <table>
+      <tr>
+        <th>Biển số</th>
+        <th>Loại xe</th>
+        <th>Giờ vào</th>
+        <th>Giờ ra</th>
+        <th>Phí</th>
+      </tr>
+      {% for r in records %}
+      <tr>
+        <td>{{r.plate}}</td>
+        <td>{{r.vehicle_type}}</td>
+        <td>{{r.entry_time.strftime('%H:%M:%S %d/%m')}}</td>
+        <td>{{r.exit_time.strftime('%H:%M:%S %d/%m') if r.exit_time else 'Đang đỗ'}}</td>
+        <td>{{r.fee}} đ</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</body>
+</html>

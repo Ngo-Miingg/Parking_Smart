@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Parking Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --primary-color: #2563eb;
+            --bg-light: #f8fafc;
+            --text-dark: #1e293b;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); min-height: 100vh; overflow-x: hidden; }
+        
+        /* SIDEBAR */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: #0f172a;
+            color: white;
+            position: fixed;
+            left: 0; top: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .brand { font-size: 1.2rem; font-weight: 700; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
+        
+        .nav-item {
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #94a3b8;
+            transition: all 0.2s;
+            display: flex; align-items: center; gap: 12px;
+            font-weight: 500;
+        }
+        .nav-item:hover, .nav-item.active { background: var(--primary-color); color: white; }
+        
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: margin-left 0.3s;
+        }
+
+        /* HEADER MOBILE */
+        .mobile-header { display: none; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .btn-toggle { background: none; border: none; font-size: 1.5rem; color: #333; }
+
+        /* OVERLAY (Che mờ khi mở menu mobile) */
+        .sidebar-overlay {
+            display: none; position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 999;
+        }
+
+        /* --- RESPONSIVE CSS (MOBILE & TABLET) --- */
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); } /* Ẩn sidebar */
+            .sidebar.open { transform: translateX(0); } /* Hiện khi có class open */
+            
+            .main-content { margin-left: 0; }
+            .mobile-header { display: flex; }
+            
+            /* Hiển thị overlay khi mở menu */
+            .sidebar.open ~ .sidebar-overlay { display: block; }
+            
+            /* Grid slot: 4 cột -> 2 cột */
+            .slot-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+        
+        /* COMPONENTS */
+        .card-custom { border: none; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); background: white; margin-bottom: 20px; }
+        .card-header-custom { padding: 15px; border-bottom: 1px solid #f1f5f9; font-weight: 600; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        
+        /* SLOT GRID */
+        .slot-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        .slot-box {
+            height: 110px; border-radius: 10px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: white; border: 2px solid #e2e8f0; position: relative;
+        }
+        .slot-box.busy { background: #fef2f2; border-color: #ef4444; color: #ef4444; }
+        .slot-box.free { background: #ecfdf5; border-color: #10b981; color: #10b981; }
+        
+        /* CAMERA */
+        .camera-box { width: 100%; height: 280px; background: #000; border-radius: 8px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; }
+        .camera-box img { width: 100%; height: 100%; object-fit: contain; }
+
+        .plate-display {
+            font-family: 'Arial', sans-serif; /* <--- Số 0 sẽ tròn bình thường */
+            font-size: 1.8rem; font-weight: 700;
+            background: #fbbf24; color: #000; 
+            padding: 5px 15px; border: 3px solid #000; border-radius: 6px;
+            display: inline-block; margin-top: 10px;
+            letter-spacing: 2px; /* Thêm khoảng cách chữ cho giống biển thật */
+        }
+        
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .dot-green { background: #10b981; } .dot-red { background: #ef4444; }
+
+        /* Animation */
+        .section-view { display: none; animation: fadeIn 0.3s; }
+        .section-view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
+        .animate-pulse { animation: pulse 1.5s infinite; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="brand">
+            <i class="fas fa-parking text-primary"></i> SMART ADMIN
+            <i class="fas fa-times d-lg-none ms-auto" style="cursor:pointer" onclick="toggleSidebar()"></i>
+        </div>
+        
+        <div class="nav-item active" onclick="switchTab('monitor')"><i class="fas fa-tv"></i> Giám Sát</div>
+        <div class="nav-item" onclick="switchTab('history')"><i class="fas fa-history"></i> Lịch Sử</div>
+        <div class="nav-item" onclick="switchTab('vehicles')"><i class="fas fa-car"></i> Xe Đăng Ký</div>
+        <div class="nav-item" onclick="switchTab('revenue')"><i class="fas fa-chart-pie"></i> Doanh Thu</div>
+        
+        <div style="margin-top: auto;">
+            <div class="small text-secondary mb-2 fw-bold" style="font-size: 0.7rem;">HỆ THỐNG</div>
+            <div class="d-flex justify-content-between small mb-2"><span><span class="status-dot dot-green" id="st-server"></span> Server</span> <span class="text-success" id="txt-server">Online</span></div>
+            <div class="d-flex justify-content-between small mb-2"><span><span class="status-dot dot-green" id="st-sensor"></span> Cảm biến</span> <span id="txt-sensor">Active</span></div>
+            <div class="d-flex justify-content-between small mb-2"><span><span class="status-dot dot-green" id="st-mq135"></span> Không khí</span> <span id="txt-mq135">Good</span></div>
+            <div class="d-flex justify-content-between small"><span><span class="status-dot dot-green" id="st-cam"></span> Camera</span> <span id="txt-cam">Ready</span></div>
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div class="main-content">
+        
+        <div class="mobile-header">
+            <button class="btn-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            <span class="fw-bold">Smart Parking IoT</span>
+            <span class="badge bg-primary" id="txt-free-mobile">Loading...</span>
+        </div>
+
+        <div id="monitor" class="section-view active">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="d-none d-lg-block"><i class="fas fa-satellite-dish text-primary"></i> Điều Hành</h4>
+                <div class="d-flex gap-2 w-100 justify-content-end">
+                    <button class="btn btn-danger flex-fill flex-lg-grow-0" onclick="manualControl('open_entry')"><i class="fas fa-upload"></i> Mở Vào</button>
+                    <button class="btn btn-success flex-fill flex-lg-grow-0" onclick="manualControl('open_exit')"><i class="fas fa-download"></i> Mở Ra</button>
+                </div>
+            </div>
+
+            <div class="card-custom">
+                <div class="card-header-custom">
+                    <span>Trạng Thái 4 Vị Trí</span>
+                    <span class="badge bg-light text-dark border" id="last-sensor-update">Updating...</span>
+                </div>
+                <div class="p-3">
+                    <div class="slot-grid">
+                        <div id="slot-1" class="slot-box free"><span class="slot-id">S1</span><i class="fas fa-car-side fa-2x mb-2"></i><span>TRỐNG</span></div>
+                        <div id="slot-2" class="slot-box free"><span class="slot-id">S2</span><i class="fas fa-car-side fa-2x mb-2"></i><span>TRỐNG</span></div>
+                        <div id="slot-3" class="slot-box free"><span class="slot-id">S3</span><i class="fas fa-car-side fa-2x mb-2"></i><span>TRỐNG</span></div>
+                        <div id="slot-4" class="slot-box free"><span class="slot-id">S4</span><i class="fas fa-car-side fa-2x mb-2"></i><span>TRỐNG</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-lg-7">
+                    <div class="card-custom h-100 p-0 overflow-hidden">
+                        <div class="card-header-custom">Camera Snapshot</div>
+                        <div class="camera-box">
+                            <img id="live-img" src="/static/placeholder.jpg" alt="No Signal">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="card-custom h-100 text-center p-3">
+                        <div class="text-muted text-uppercase fw-bold" style="font-size: 0.8rem;">Phương Tiện Vừa Quét</div>
+                        <div class="plate-display" id="live-plate">---</div>
+                        <div class="mt-2" id="live-status">
+                            <span class="badge bg-secondary">Chờ xe...</span>
+                        </div>
+                        <hr>
+                        <div class="row text-start mt-3 small">
+                            <div class="col-6"><strong>Giờ:</strong> <br> <span id="live-time">--:--</span></div>
+                            <div class="col-6"><strong>Loại:</strong> <br> <span id="live-type">--</span></div>
+                        </div>
+                        <div class="alert alert-light border mt-3 mb-0 small" id="live-msg">Sẵn sàng</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="history" class="section-view">
+            <div class="card-custom">
+                <div class="card-header-custom gap-2">
+                    <span>Nhật Ký</span>
+                    <div class="input-group input-group-sm w-auto">
+                        <input type="date" id="hist-start" class="form-control">
+                        <input type="date" id="hist-end" class="form-control">
+                        <button class="btn btn-primary" onclick="loadHistoryWithFilter()">Lọc</button>
+                        <button class="btn btn-outline-secondary" onclick="resetFilter()">🔄</button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 small">
+                        <thead class="table-light">
+                            <tr><th>Giờ</th><th>Ảnh</th><th>Biển Số</th><th>TT</th><th>Phí</th></tr>
+                        </thead>
+                        <tbody id="history-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="vehicles" class="section-view">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="card-custom p-3">
+                        <h6 class="fw-bold mb-3">Đăng Ký Xe Tháng</h6>
+                        <form id="reg-form">
+                            <div class="mb-2">
+                                <label class="small">Biển Số</label>
+                                <input type="text" id="reg-plate" class="form-control" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="small">Chủ Xe</label>
+                                <input type="text" id="reg-owner" class="form-control">
+                            </div>
+                            <div class="mb-2">
+                                <label class="small">Loại</label>
+                                <select id="reg-type" class="form-control">
+                                    <option value="Car">Ô tô</option>
+                                    <option value="Bike">Xe máy</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 mt-2">Thêm Mới</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card-custom">
+                        <div class="card-header-custom">Danh Sách Xe</div>
+                        <div class="table-responsive" style="max-height: 500px;">
+                            <table class="table table-sm mb-0 small">
+                                <thead class="table-light"><tr><th>Biển</th><th>Chủ</th><th>Loại</th><th>Xóa</th></tr></thead>
+                                <tbody id="reg-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="revenue" class="section-view">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <h5>Doanh Thu</h5>
+                <div class="d-flex gap-2">
+                    <select class="form-select form-select-sm" id="rev-quick-select" onchange="quickRevenueFilter(this.value)">
+                        <option value="today">Hôm nay</option>
+                        <option value="yesterday">Hôm qua</option>
+                        <option value="this_month">Tháng này</option>
+                        <option value="custom">Tùy chọn...</option>
+                    </select>
+                    <div id="rev-custom-date" class="d-flex gap-1 d-none">
+                        <input type="date" id="rev-start" class="form-control form-control-sm">
+                        <input type="date" id="rev-end" class="form-control form-control-sm">
+                        <button class="btn btn-primary btn-sm" onclick="loadRevenueCustom()">OK</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-4">
+                    <div class="card-custom p-2 text-center border-primary border-top border-3 h-100">
+                        <div class="small text-muted" style="font-size:0.7rem" id="lbl-rev-money">Tổng Thu</div>
+                        <div class="fw-bold text-primary" id="rev-total">0</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="card-custom p-2 text-center border-success border-top border-3 h-100">
+                        <div class="small text-muted" style="font-size:0.7rem">Vào</div>
+                        <div class="fw-bold text-success" id="rev-count-in">0</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="card-custom p-2 text-center border-warning border-top border-3 h-100">
+                        <div class="small text-muted" style="font-size:0.7rem">Ra</div>
+                        <div class="fw-bold text-warning" id="rev-count-out">0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-custom p-3">
+                <h6>Biểu Đồ</h6>
+                <div style="position: relative; height: 250px; width: 100%;">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+    
+    <script>
+        // Script nhỏ để xử lý đóng mở menu trên mobile
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        function switchTab(tabId) {
+            // Ẩn sidebar khi chọn tab trên mobile
+            if(window.innerWidth < 992) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+            
+            // Logic cũ
+            document.querySelectorAll('.section-view').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            const menuMap = { 'monitor': 0, 'history': 1, 'vehicles': 2, 'revenue': 3 };
+            const navItems = document.querySelectorAll('.nav-item');
+            if(navItems[menuMap[tabId]]) navItems[menuMap[tabId]].classList.add('active');
+
+            if(tabId === 'vehicles') loadRegistered();
+            if(tabId === 'revenue') {
+                document.getElementById('rev-quick-select').value = 'today';
+                quickRevenueFilter('today');
+            }
+        }
+    </script>
+</body>
+</html>

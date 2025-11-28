@@ -1,0 +1,11 @@
+flask
+flask-socketio
+python-socketio
+eventlet
+requests
+numpy
+opencv-python
+pillow
+easyocr
+torch
+ultralytics
