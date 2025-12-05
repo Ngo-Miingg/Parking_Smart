@@ -134,7 +134,7 @@ Hệ thống sử dụng logic giao tiếp I2C và điều khiển Servo như sa
 
 <div align="center">
 
-**© 2025 Nhóm 2 - Lớp CNTT_17-01** **Khoa Công nghệ Thông tin - Đại học Đại Nam**
+**© 2025 Nhóm 2 - Lớp CNTT_17-01** **Khoa Công nghệ Thông tin - Trường Đại học Đại Nam**
 
 Thực hiện bởi: **Ngô Văn Minh** và các thành viên nhóm.  
 📧 Email: mt0u0tm@gmail.com
