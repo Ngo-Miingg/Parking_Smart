@@ -125,7 +125,9 @@ Hệ thống sử dụng logic giao tiếp I2C và điều khiển Servo như sa
 
 ## 📂 Tài Nguyên Dự Án
 
-  * **Video Demo & Poster:** [Xem tại Google Drive](https://drive.google.com/drive/folders/1gjgWLPGixKoOhLTOEyunc6heffVYvRjw?usp=sharing)
+  * **Poster:** [Xem tại Google Drive](https://drive.google.com/file/d/1TQbx7rW_jXHFRppgbOzdixGwdrS9q5VT/view?usp=sharing)
+  * **Video Giới thiệu:** [Xem tại Google Drive](https://drive.google.com/file/d/1DR8EIr805dFXf4DXT7GLRNGOrK2HanPK/view?usp=sharing)
+  * **Video Demo:** [Xem tại Google Drive](https://drive.google.com/file/d/1NguQMwdz_jQxsIdDDW1RpvXtnOtSUgcg/view?usp=sharing)
 -----
 
 ## 👨‍💻 Tác Giả & Bản Quyền
