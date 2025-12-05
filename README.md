@@ -13,7 +13,7 @@
   <img src="ParkingSmart/LogoIoT.png" alt="AIoTLab Logo" width="150"/>
 </p>
 
-**Đồ án môn học - Khoa Công nghệ Thông tin - Đại học Đại Nam**
+**Đồ án môn học - Khoa Công nghệ Thông tin - Trường Đại học Đại Nam**
 
 </div>
 
